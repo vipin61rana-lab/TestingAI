@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
-function ClaimSummary() {
+function ClaimSummary({ user, onLogout }) {
+  const navigate = useNavigate();
   const [claims, setClaims] = useState([]);
   const [search, setSearch] = useState('');
   const [editClaim, setEditClaim] = useState(null);
@@ -56,7 +58,27 @@ function ClaimSummary() {
 
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto', mt: 4 }}>
-      <Typography variant="h4" sx={{ mb: 2 }}>Claim Summary</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h4">Claim Summary</Typography>
+        <Box>
+          <Button variant="contained" color="primary" onClick={() => navigate('/new-claim')} sx={{ mr: 2 }}>
+            New Claim
+          </Button>
+          {user.role === 'admin' && (
+            <>
+              <Button variant="contained" color="success" onClick={() => navigate('/add-user')} sx={{ mr: 2 }}>
+                Add User
+              </Button>
+              <Button variant="contained" color="info" onClick={() => navigate('/admin-users')} sx={{ mr: 2 }}>
+                View Users
+              </Button>
+            </>
+          )}
+          <Button variant="outlined" color="secondary" onClick={onLogout}>
+            Logout
+          </Button>
+        </Box>
+      </Box>
       <TextField label="Search by Name or ID" value={search} onChange={handleSearch} fullWidth sx={{ mb: 2 }} />
       <TableContainer component={Paper}>
         <Table>

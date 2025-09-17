@@ -1,3 +1,9 @@
+// GET /api/users (admin only)
+app.get('/api/users', async (req, res) => {
+  await db.read();
+  res.json(db.data.users || []);
+});
+
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -12,7 +18,7 @@ app.use(bodyParser.json());
 
 // Setup lowdb in-memory
 const adapter = new JSONFile('db.json');
-const db = new Low(adapter);
+const db = new Low(adapter, { claims: [] });
 
 // Helper: Generate unique claim ID
 function generateClaimId() {
@@ -80,7 +86,31 @@ async function seedClaims() {
   }
 }
 
+// Seed users and claims
+async function seedUsers() {
+  await db.read();
+  db.data ||= { claims: [], users: [] };
+  if (!db.data.users || db.data.users.length === 0) {
+    db.data.users = [
+      { username: 'vipin', password: 'admin123', role: 'admin' },
+      { username: 'rahul', password: 'user123', role: 'user' }
+    ];
+    await db.write();
+  }
+}
+
 seedClaims();
+seedUsers();
+// POST /api/login
+app.post('/api/login', async (req, res) => {
+  await db.read();
+  const { username, password } = req.body;
+  const user = db.data.users.find(u => u.username === username && u.password === password);
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  res.json({ username: user.username, role: user.role });
+});
 
 // GET /api/claims (optionally with search)
 app.get('/api/claims', async (req, res) => {
@@ -127,6 +157,22 @@ app.delete('/api/claims/:id', async (req, res) => {
   const idx = db.data.claims.findIndex(c => c.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Claim not found' });
   db.data.claims.splice(idx, 1);
+  await db.write();
+  res.json({ success: true });
+});
+
+
+// POST /api/users (admin only)
+app.post('/api/users', async (req, res) => {
+  await db.read();
+  const { username, password, role } = req.body;
+  if (!username || !password || !role) {
+    return res.status(400).json({ error: 'Missing fields' });
+  }
+  if (db.data.users.find(u => u.username === username)) {
+    return res.status(409).json({ error: 'User already exists' });
+  }
+  db.data.users.push({ username, password, role });
   await db.write();
   res.json({ success: true });
 });
