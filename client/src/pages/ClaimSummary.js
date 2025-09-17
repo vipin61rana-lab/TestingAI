@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Box, Typography, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions, Pagination, IconButton, Chip, TableSortLabel } from '@mui/material';
+import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon, People as PeopleIcon, PersonAdd as PersonAddIcon, Logout as LogoutIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 function ClaimSummary({ user, onLogout }) {
@@ -9,6 +10,9 @@ function ClaimSummary({ user, onLogout }) {
   const [editClaim, setEditClaim] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [editData, setEditData] = useState({ clientInfo: {}, claimDetails: {} });
+  const [page, setPage] = useState(1);
+  const [rowsPerPage] = useState(5);
+  const [sortConfig, setSortConfig] = useState({ key: '', direction: 'asc' });
 
   useEffect(() => {
     fetchClaims();
@@ -23,8 +27,75 @@ function ClaimSummary({ user, onLogout }) {
 
   const handleSearch = e => {
     setSearch(e.target.value);
+    setPage(1); // Reset to first page when searching
     fetchClaims(e.target.value);
   };
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  // Calculate pagination
+  const startIndex = (page - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+
+  // Sorting functionality
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortedClaims = () => {
+    if (!sortConfig.key) return claims;
+    
+    return [...claims].sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortConfig.key) {
+        case 'id':
+          aValue = a.id;
+          bValue = b.id;
+          break;
+        case 'clientName':
+          aValue = `${a.clientInfo.firstName} ${a.clientInfo.lastName}`;
+          bValue = `${b.clientInfo.firstName} ${b.clientInfo.lastName}`;
+          break;
+        case 'policyNumber':
+          aValue = a.claimDetails.policyNumber;
+          bValue = b.claimDetails.policyNumber;
+          break;
+        case 'claimType':
+          aValue = a.claimDetails.claimType;
+          bValue = b.claimDetails.claimType;
+          break;
+        case 'dateOfIncident':
+          aValue = new Date(a.claimDetails.dateOfIncident);
+          bValue = new Date(b.claimDetails.dateOfIncident);
+          break;
+        case 'status':
+          aValue = a.status;
+          bValue = b.status;
+          break;
+        default:
+          return 0;
+      }
+      
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  };
+
+  const sortedClaims = getSortedClaims();
+  const paginatedClaims = sortedClaims.slice(startIndex, endIndex);
+  const totalPagesAfterSort = Math.ceil(sortedClaims.length / rowsPerPage);
 
   const handleEdit = claim => {
     setEditClaim(claim.id);
@@ -58,43 +129,177 @@ function ClaimSummary({ user, onLogout }) {
 
   return (
     <Box sx={{ maxWidth: 900, mx: 'auto', mt: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h4">Claim Summary</Typography>
-        <Box>
-          <Button variant="contained" color="primary" onClick={() => navigate('/new-claim')} sx={{ mr: 2 }}>
-            New Claim
-          </Button>
-          {user.role === 'admin' && (
-            <>
-              <Button variant="contained" color="success" onClick={() => navigate('/add-user')} sx={{ mr: 2 }}>
-                Add User
-              </Button>
-              <Button variant="contained" color="info" onClick={() => navigate('/admin-users')} sx={{ mr: 2 }}>
-                View Users
-              </Button>
-            </>
-          )}
-          <Button variant="outlined" color="secondary" onClick={onLogout}>
-            Logout
-          </Button>
-        </Box>
+      {/* MetLife Logo Header */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+        <img src="/download.png" alt="MetLife Logo" style={{ maxWidth: 180, maxHeight: 60 }} />
       </Box>
+      
+      {/* Enhanced Navigation Bar */}
+      <Paper elevation={3} sx={{ mb: 3, p: 2, backgroundColor: '#f8f9fa' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h4" sx={{ color: '#1976d2', fontWeight: 'bold' }}>
+            Claim Summary
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={() => navigate('/new-claim')} 
+              startIcon={<AddIcon />}
+              sx={{ 
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '14px',
+                padding: '8px 16px'
+              }}
+            >
+              New Claim
+            </Button>
+            {user.role === 'admin' && (
+              <>
+                <Button 
+                  variant="contained" 
+                  color="success" 
+                  onClick={() => navigate('/add-user')} 
+                  startIcon={<PersonAddIcon />}
+                  sx={{ 
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontSize: '14px',
+                    padding: '8px 16px'
+                  }}
+                >
+                  Add User
+                </Button>
+                <Button 
+                  variant="contained" 
+                  color="info" 
+                  onClick={() => navigate('/admin-users')} 
+                  startIcon={<PeopleIcon />}
+                  sx={{ 
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontSize: '14px',
+                    padding: '8px 16px'
+                  }}
+                >
+                  View Users
+                </Button>
+              </>
+            )}
+            <Box sx={{ ml: 2, pl: 2, borderLeft: '1px solid #ddd' }}>
+              <Chip 
+                label={`${user.username} (${user.role})`} 
+                color="primary" 
+                variant="outlined" 
+                sx={{ mr: 2 }}
+              />
+              <Button 
+                variant="outlined" 
+                color="error" 
+                onClick={onLogout}
+                startIcon={<LogoutIcon />}
+                sx={{ 
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontSize: '14px',
+                  padding: '8px 16px'
+                }}
+              >
+                Logout
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      </Paper>
       <TextField label="Search by Name or ID" value={search} onChange={handleSearch} fullWidth sx={{ mb: 2 }} />
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Client Name</TableCell>
-              <TableCell>Policy #</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 'bold' }}>
+                <TableSortLabel
+                  active={sortConfig.key === 'id'}
+                  direction={sortConfig.key === 'id' ? sortConfig.direction : 'asc'}
+                  onClick={() => handleSort('id')}
+                  sx={{ 
+                    color: 'white !important',
+                    '& .MuiTableSortLabel-icon': { color: 'white !important' }
+                  }}
+                >
+                  ID
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 'bold' }}>
+                <TableSortLabel
+                  active={sortConfig.key === 'clientName'}
+                  direction={sortConfig.key === 'clientName' ? sortConfig.direction : 'asc'}
+                  onClick={() => handleSort('clientName')}
+                  sx={{ 
+                    color: 'white !important',
+                    '& .MuiTableSortLabel-icon': { color: 'white !important' }
+                  }}
+                >
+                  Client Name
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 'bold' }}>
+                <TableSortLabel
+                  active={sortConfig.key === 'policyNumber'}
+                  direction={sortConfig.key === 'policyNumber' ? sortConfig.direction : 'asc'}
+                  onClick={() => handleSort('policyNumber')}
+                  sx={{ 
+                    color: 'white !important',
+                    '& .MuiTableSortLabel-icon': { color: 'white !important' }
+                  }}
+                >
+                  Policy #
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 'bold' }}>
+                <TableSortLabel
+                  active={sortConfig.key === 'claimType'}
+                  direction={sortConfig.key === 'claimType' ? sortConfig.direction : 'asc'}
+                  onClick={() => handleSort('claimType')}
+                  sx={{ 
+                    color: 'white !important',
+                    '& .MuiTableSortLabel-icon': { color: 'white !important' }
+                  }}
+                >
+                  Type
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 'bold' }}>
+                <TableSortLabel
+                  active={sortConfig.key === 'dateOfIncident'}
+                  direction={sortConfig.key === 'dateOfIncident' ? sortConfig.direction : 'asc'}
+                  onClick={() => handleSort('dateOfIncident')}
+                  sx={{ 
+                    color: 'white !important',
+                    '& .MuiTableSortLabel-icon': { color: 'white !important' }
+                  }}
+                >
+                  Date
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 'bold' }}>
+                <TableSortLabel
+                  active={sortConfig.key === 'status'}
+                  direction={sortConfig.key === 'status' ? sortConfig.direction : 'asc'}
+                  onClick={() => handleSort('status')}
+                  sx={{ 
+                    color: 'white !important',
+                    '& .MuiTableSortLabel-icon': { color: 'white !important' }
+                  }}
+                >
+                  Status
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 'bold' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {claims.map(claim => (
+            {paginatedClaims.map(claim => (
               <TableRow key={claim.id}>
                 <TableCell>{claim.id}</TableCell>
                 <TableCell>{claim.clientInfo.firstName} {claim.clientInfo.lastName}</TableCell>
@@ -103,14 +308,31 @@ function ClaimSummary({ user, onLogout }) {
                 <TableCell>{claim.claimDetails.dateOfIncident}</TableCell>
                 <TableCell>{claim.status}</TableCell>
                 <TableCell>
-                  <Button size="small" onClick={() => handleEdit(claim)}>Edit</Button>
-                  <Button size="small" color="error" onClick={() => setDeleteId(claim.id)}>Delete</Button>
+                  <IconButton size="small" onClick={() => handleEdit(claim)} color="primary">
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => setDeleteId(claim.id)} color="error">
+                    <DeleteIcon />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+      
+      {/* Pagination */}
+      {totalPagesAfterSort > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <Pagination 
+            count={totalPagesAfterSort} 
+            page={page} 
+            onChange={handlePageChange} 
+            color="primary" 
+          />
+        </Box>
+      )}
+      
       {/* Edit Modal */}
       <Dialog open={!!editClaim} onClose={() => setEditClaim(null)}>
         <DialogTitle>Edit Claim</DialogTitle>

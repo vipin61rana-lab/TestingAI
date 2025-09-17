@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button } from '@mui/material';
+import { Box, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Chip } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -18,14 +19,43 @@ function AdminUsers() {
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 8 }}>
+      {/* MetLife Logo Header */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+        <img src="/download.png" alt="MetLife Logo" style={{ maxWidth: 180, maxHeight: 60 }} />
+      </Box>
+      
+      {/* Enhanced Navigation Bar */}
+      <Paper elevation={3} sx={{ mb: 3, p: 2, backgroundColor: '#f8f9fa' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h4" sx={{ color: '#1976d2', fontWeight: 'bold' }}>
+            All Users
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Button 
+              variant="outlined" 
+              color="primary" 
+              onClick={() => navigate('/claims')} 
+              startIcon={<ArrowBackIcon />}
+              sx={{ 
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '14px',
+                padding: '8px 16px'
+              }}
+            >
+              Back to Summary
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+      
       <Paper sx={{ p: 4 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>All Users</Typography>
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Username</TableCell>
-                <TableCell>Role</TableCell>
+                <TableCell sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 'bold' }}>Username</TableCell>
+                <TableCell sx={{ backgroundColor: '#1976d2', color: 'white', fontWeight: 'bold' }}>Role</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

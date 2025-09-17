@@ -1,9 +1,3 @@
-// GET /api/users (admin only)
-app.get('/api/users', async (req, res) => {
-  await db.read();
-  res.json(db.data.users || []);
-});
-
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -77,7 +71,7 @@ async function seedClaims() {
           firstName: 'Carol', lastName: 'White', email: 'carol.white@example.com', phone: '567-890-1234'
         },
         claimDetails: {
-          policyNumber: 'POL-11223', claimType: 'Home', dateOfIncident: '2023-07-12', description: 'Fire damage in kitchen.'
+          policyNumber: 'POL-13579', claimType: 'Life', dateOfIncident: '2023-07-10', description: 'Policyholder passed away.'
         },
         status: 'Submitted'
       }
@@ -85,6 +79,12 @@ async function seedClaims() {
     await db.write();
   }
 }
+
+// GET /api/users (admin only)
+app.get('/api/users', async (req, res) => {
+  await db.read();
+  res.json(db.data.users || []);
+});
 
 // Seed users and claims
 async function seedUsers() {
@@ -173,6 +173,33 @@ app.post('/api/users', async (req, res) => {
     return res.status(409).json({ error: 'User already exists' });
   }
   db.data.users.push({ username, password, role });
+  await db.write();
+  res.json({ success: true });
+});
+
+// PUT /api/users/:username (admin only)
+app.put('/api/users/:username', async (req, res) => {
+  await db.read();
+  const { username } = req.params;
+  const { role } = req.body;
+  const userIndex = db.data.users.findIndex(u => u.username === username);
+  if (userIndex === -1) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  db.data.users[userIndex] = { ...db.data.users[userIndex], role };
+  await db.write();
+  res.json(db.data.users[userIndex]);
+});
+
+// DELETE /api/users/:username (admin only)
+app.delete('/api/users/:username', async (req, res) => {
+  await db.read();
+  const { username } = req.params;
+  const userIndex = db.data.users.findIndex(u => u.username === username);
+  if (userIndex === -1) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  db.data.users.splice(userIndex, 1);
   await db.write();
   res.json({ success: true });
 });

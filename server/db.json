@@ -111,6 +111,70 @@
       },
       "id": "CLAIM-1758076284738-319",
       "status": "Submitted"
+    },
+    {
+      "clientInfo": {
+        "firstName": "Vipin1",
+        "lastName": "Rana1",
+        "email": "vipinranamca@gmail.com",
+        "phone": "9842747314"
+      },
+      "claimDetails": {
+        "policyNumber": "333",
+        "claimType": "Home",
+        "dateOfIncident": "1980-11-11",
+        "description": "test"
+      },
+      "id": "CLAIM-1758114418082-309",
+      "status": "Submitted"
+    },
+    {
+      "clientInfo": {
+        "firstName": "Vipin666",
+        "lastName": "Rana66",
+        "email": "vipinranamca@gmail.com",
+        "phone": "9842747315"
+      },
+      "claimDetails": {
+        "policyNumber": "777",
+        "claimType": "Home",
+        "dateOfIncident": "0080-02-19",
+        "description": ""
+      },
+      "id": "CLAIM-1758115141206-516",
+      "status": "Submitted"
+    },
+    {
+      "clientInfo": {
+        "firstName": "Vipin25",
+        "lastName": "Rana25",
+        "email": "vipinranamca@gmail.com",
+        "phone": "9842747333"
+      },
+      "claimDetails": {
+        "policyNumber": "1234567",
+        "claimType": "Auto",
+        "dateOfIncident": "2025-09-17",
+        "description": "test"
+      },
+      "id": "CLAIM-1758122123714-899",
+      "status": "Submitted"
+    },
+    {
+      "clientInfo": {
+        "firstName": "vinay",
+        "lastName": "Rana",
+        "email": "vipinranamca@gmail.com",
+        "phone": "9953840307"
+      },
+      "claimDetails": {
+        "policyNumber": "5678",
+        "claimType": "Life",
+        "dateOfIncident": "2025-09-16",
+        "description": "testing"
+      },
+      "id": "CLAIM-1758131312203-22",
+      "status": "Submitted"
     }
   ],
   "users": [

@@ -31,7 +31,7 @@ function Login({ onLogin }) {
     <Box sx={{ maxWidth: 400, mx: 'auto', mt: 8 }}>
       <Paper sx={{ p: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-          <img src="/metlife-logo.png" alt="MetLife Logo" style={{ maxWidth: 180, maxHeight: 60 }} />
+          <img src="/download.png" alt="MetLife Logo" style={{ maxWidth: 180, maxHeight: 60 }} />
         </Box>
         <Typography variant="h5" sx={{ mb: 2 }}>Login</Typography>
         <form onSubmit={handleSubmit}>

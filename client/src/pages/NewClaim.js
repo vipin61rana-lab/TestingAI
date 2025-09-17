@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Button, Stepper, Step, StepLabel, Typography, TextField, MenuItem, Paper } from '@mui/material';
+import { Box, Button, Stepper, Step, StepLabel, Typography, TextField, MenuItem, Paper, Chip } from '@mui/material';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const steps = ['Client Info', 'Claim Details', 'Review', 'Submit'];
@@ -23,10 +24,85 @@ function NewClaim() {
   const [claimDetails, setClaimDetails] = useState(initialClaimDetails);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [validationErrors, setValidationErrors] = useState({});
   const navigate = useNavigate();
 
-  const handleNext = () => setActiveStep(prev => prev + 1);
-  const handleBack = () => setActiveStep(prev => prev - 1);
+  // Validation functions
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^[\d\s\-\(\)\+]{10,}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const validateClientInfo = () => {
+    const errors = {};
+    
+    if (!clientInfo.firstName.trim()) {
+      errors.firstName = 'First Name is required';
+    }
+    
+    if (!clientInfo.lastName.trim()) {
+      errors.lastName = 'Last Name is required';
+    }
+    
+    if (!clientInfo.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!validateEmail(clientInfo.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    if (!clientInfo.phone.trim()) {
+      errors.phone = 'Phone number is required';
+    } else if (!validatePhone(clientInfo.phone)) {
+      errors.phone = 'Please enter a valid phone number';
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validateClaimDetails = () => {
+    const errors = {};
+    
+    if (!claimDetails.policyNumber.trim()) {
+      errors.policyNumber = 'Policy Number is required';
+    }
+    
+    if (!claimDetails.claimType) {
+      errors.claimType = 'Claim Type is required';
+    }
+    
+    if (!claimDetails.dateOfIncident) {
+      errors.dateOfIncident = 'Date of Incident is required';
+    }
+    
+    if (!claimDetails.description.trim()) {
+      errors.description = 'Description is required';
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (activeStep === 0 && !validateClientInfo()) {
+      return;
+    }
+    if (activeStep === 1 && !validateClaimDetails()) {
+      return;
+    }
+    setValidationErrors({});
+    setActiveStep(prev => prev + 1);
+  };
+
+  const handleBack = () => {
+    setValidationErrors({});
+    setActiveStep(prev => prev - 1);
+  };
 
   const handleClientChange = e => {
     setClientInfo({ ...clientInfo, [e.target.name]: e.target.value });
@@ -55,6 +131,36 @@ function NewClaim() {
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
+      {/* MetLife Logo Header */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+        <img src="/download.png" alt="MetLife Logo" style={{ maxWidth: 180, maxHeight: 60 }} />
+      </Box>
+      
+      {/* Enhanced Navigation Bar */}
+      <Paper elevation={3} sx={{ mb: 3, p: 2, backgroundColor: '#f8f9fa' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h4" sx={{ color: '#1976d2', fontWeight: 'bold' }}>
+            New Claim
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Button 
+              variant="outlined" 
+              color="primary" 
+              onClick={() => navigate('/claims')} 
+              startIcon={<ArrowBackIcon />}
+              sx={{ 
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '14px',
+                padding: '8px 16px'
+              }}
+            >
+              Back to Summary
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+      
       <Paper sx={{ p: 3 }}>
         <Stepper activeStep={activeStep} sx={{ mb: 3 }}>
           {steps.map(label => (
@@ -66,23 +172,113 @@ function NewClaim() {
         {activeStep === 0 && (
           <Box>
             <Typography variant="h6">Client Info</Typography>
-            <TextField label="First Name" name="firstName" value={clientInfo.firstName} onChange={handleClientChange} fullWidth sx={{ mt: 2 }} />
-            <TextField label="Last Name" name="lastName" value={clientInfo.lastName} onChange={handleClientChange} fullWidth sx={{ mt: 2 }} />
-            <TextField label="Email" name="email" value={clientInfo.email} onChange={handleClientChange} fullWidth sx={{ mt: 2 }} />
-            <TextField label="Phone" name="phone" value={clientInfo.phone} onChange={handleClientChange} fullWidth sx={{ mt: 2 }} />
+            <TextField 
+              label="First Name" 
+              name="firstName" 
+              value={clientInfo.firstName} 
+              onChange={handleClientChange} 
+              fullWidth 
+              required
+              error={!!validationErrors.firstName}
+              helperText={validationErrors.firstName}
+              sx={{ mt: 2 }} 
+            />
+            <TextField 
+              label="Last Name" 
+              name="lastName" 
+              value={clientInfo.lastName} 
+              onChange={handleClientChange} 
+              fullWidth 
+              required
+              error={!!validationErrors.lastName}
+              helperText={validationErrors.lastName}
+              sx={{ mt: 2 }} 
+            />
+            <TextField 
+              label="Email" 
+              name="email" 
+              type="email"
+              value={clientInfo.email} 
+              onChange={handleClientChange} 
+              fullWidth 
+              required
+              error={!!validationErrors.email}
+              helperText={validationErrors.email}
+              sx={{ mt: 2 }} 
+            />
+            <TextField 
+              label="Phone" 
+              name="phone" 
+              value={clientInfo.phone} 
+              onChange={handleClientChange} 
+              fullWidth 
+              required
+              error={!!validationErrors.phone}
+              helperText={validationErrors.phone}
+              placeholder="e.g., 123-456-7890"
+              sx={{ mt: 2 }} 
+            />
           </Box>
         )}
         {activeStep === 1 && (
           <Box>
             <Typography variant="h6">Claim Details</Typography>
-            <TextField label="Policy Number" name="policyNumber" value={claimDetails.policyNumber} onChange={handleClaimChange} fullWidth sx={{ mt: 2 }} />
-            <TextField select label="Claim Type" name="claimType" value={claimDetails.claimType} onChange={handleClaimChange} fullWidth sx={{ mt: 2 }}>
+            <TextField 
+              label="Policy Number" 
+              name="policyNumber" 
+              value={claimDetails.policyNumber} 
+              onChange={handleClaimChange} 
+              fullWidth 
+              required
+              error={!!validationErrors.policyNumber}
+              helperText={validationErrors.policyNumber}
+              sx={{ mt: 2 }} 
+            />
+            <TextField 
+              select 
+              label="Claim Type" 
+              name="claimType" 
+              value={claimDetails.claimType} 
+              onChange={handleClaimChange} 
+              fullWidth 
+              required
+              error={!!validationErrors.claimType}
+              helperText={validationErrors.claimType}
+              sx={{ mt: 2 }}
+            >
+              <MenuItem value="">Select Claim Type</MenuItem>
               <MenuItem value="Auto">Auto</MenuItem>
               <MenuItem value="Home">Home</MenuItem>
               <MenuItem value="Health">Health</MenuItem>
+              <MenuItem value="Life">Life</MenuItem>
             </TextField>
-            <TextField type="date" label="Date of Incident" name="dateOfIncident" value={claimDetails.dateOfIncident} onChange={handleClaimChange} fullWidth sx={{ mt: 2 }} InputLabelProps={{ shrink: true }} />
-            <TextField label="Description" name="description" value={claimDetails.description} onChange={handleClaimChange} fullWidth multiline rows={3} sx={{ mt: 2 }} />
+            <TextField 
+              type="date" 
+              label="Date of Incident" 
+              name="dateOfIncident" 
+              value={claimDetails.dateOfIncident} 
+              onChange={handleClaimChange} 
+              fullWidth 
+              required
+              error={!!validationErrors.dateOfIncident}
+              helperText={validationErrors.dateOfIncident}
+              InputLabelProps={{ shrink: true }} 
+              sx={{ mt: 2 }} 
+            />
+            <TextField 
+              label="Description" 
+              name="description" 
+              value={claimDetails.description} 
+              onChange={handleClaimChange} 
+              fullWidth 
+              required
+              multiline 
+              rows={3} 
+              error={!!validationErrors.description}
+              helperText={validationErrors.description}
+              placeholder="Please describe the incident in detail..."
+              sx={{ mt: 2 }} 
+            />
           </Box>
         )}
         {activeStep === 2 && (
