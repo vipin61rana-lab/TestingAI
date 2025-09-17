@@ -175,6 +175,22 @@
       },
       "id": "CLAIM-1758131312203-22",
       "status": "Submitted"
+    },
+    {
+      "clientInfo": {
+        "firstName": "Pratigya",
+        "lastName": "Rana",
+        "email": "pratigyarana29@gmail.com",
+        "phone": "6474503307"
+      },
+      "claimDetails": {
+        "policyNumber": "66",
+        "claimType": "Auto",
+        "dateOfIncident": "2025-09-17",
+        "description": "ttt"
+      },
+      "id": "CLAIM-1758140993893-311",
+      "status": "Submitted"
     }
   ],
   "users": [

@@ -1,7 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions, Pagination, IconButton, Chip, TableSortLabel } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon, People as PeopleIcon, PersonAdd as PersonAddIcon, Logout as LogoutIcon } from '@mui/icons-material';
+import { Box, Typography, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions, Pagination, IconButton, Chip, TableSortLabel, Grid } from '@mui/material';
+import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon, People as PeopleIcon, PersonAdd as PersonAddIcon, Logout as LogoutIcon, BarChart as BarChartIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from 'chart.js';
+import { Doughnut, Bar } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
 
 function ClaimSummary({ user, onLogout }) {
   const navigate = useNavigate();
@@ -96,6 +117,112 @@ function ClaimSummary({ user, onLogout }) {
   const sortedClaims = getSortedClaims();
   const paginatedClaims = sortedClaims.slice(startIndex, endIndex);
   const totalPagesAfterSort = Math.ceil(sortedClaims.length / rowsPerPage);
+
+  // Chart data processing
+  const getClaimTypeDistribution = () => {
+    const typeCount = {};
+    claims.forEach(claim => {
+      const type = claim.claimDetails?.claimType || 'Unknown';
+      typeCount[type] = (typeCount[type] || 0) + 1;
+    });
+    return typeCount;
+  };
+
+  const claimTypeData = getClaimTypeDistribution();
+  
+  // Doughnut Chart Configuration
+  const doughnutData = {
+    labels: Object.keys(claimTypeData),
+    datasets: [
+      {
+        label: 'Claims by Type',
+        data: Object.values(claimTypeData),
+        backgroundColor: [
+          '#FF6384',
+          '#36A2EB', 
+          '#FFCE56',
+          '#4BC0C0',
+          '#9966FF',
+          '#FF9F40',
+          '#FF6384',
+          '#C9CBCF'
+        ],
+        borderColor: [
+          '#FF6384',
+          '#36A2EB',
+          '#FFCE56', 
+          '#4BC0C0',
+          '#9966FF',
+          '#FF9F40',
+          '#FF6384',
+          '#C9CBCF'
+        ],
+        borderWidth: 2,
+        hoverBorderWidth: 3,
+        hoverBorderColor: '#333'
+      }
+    ]
+  };
+
+  // Bar Chart Configuration
+  const barData = {
+    labels: Object.keys(claimTypeData),
+    datasets: [
+      {
+        label: 'Number of Claims',
+        data: Object.values(claimTypeData),
+        backgroundColor: 'rgba(25, 118, 210, 0.6)',
+        borderColor: 'rgba(25, 118, 210, 1)',
+        borderWidth: 2,
+        borderRadius: 4,
+        borderSkipped: false,
+      }
+    ]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          padding: 20,
+          usePointStyle: true,
+          font: {
+            size: 12
+          }
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        borderColor: 'rgba(25, 118, 210, 1)',
+        borderWidth: 1
+      }
+    }
+  };
+
+  const barOptions = {
+    ...chartOptions,
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1
+        },
+        grid: {
+          color: 'rgba(0,0,0,0.1)'
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        }
+      }
+    }
+  };
 
   const handleEdit = claim => {
     setEditClaim(claim.id);
@@ -212,6 +339,89 @@ function ClaimSummary({ user, onLogout }) {
           </Box>
         </Box>
       </Paper>
+
+      {/* Claims Analytics Dashboard */}
+      {claims.length > 0 && (
+        <Paper elevation={3} sx={{ mb: 3, p: 3, backgroundColor: '#fafafa' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            <BarChartIcon sx={{ mr: 1, color: '#1976d2' }} />
+            <Typography variant="h5" sx={{ color: '#1976d2', fontWeight: 'bold' }}>
+              Claims Analytics
+            </Typography>
+          </Box>
+          
+          <Grid container spacing={3}>
+            {/* Doughnut Chart */}
+            <Grid item xs={12} md={6}>
+              <Paper elevation={2} sx={{ p: 3, height: 350 }}>
+                <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', color: '#666' }}>
+                  Claims Distribution by Type
+                </Typography>
+                <Box sx={{ height: 280 }}>
+                  <Doughnut data={doughnutData} options={chartOptions} />
+                </Box>
+              </Paper>
+            </Grid>
+            
+            {/* Bar Chart */}
+            <Grid item xs={12} md={6}>
+              <Paper elevation={2} sx={{ p: 3, height: 350 }}>
+                <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', color: '#666' }}>
+                  Claims Count by Type
+                </Typography>
+                <Box sx={{ height: 280 }}>
+                  <Bar data={barData} options={barOptions} />
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+          
+          {/* Summary Statistics */}
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            <Grid item xs={12} sm={3}>
+              <Paper elevation={1} sx={{ p: 2, textAlign: 'center', backgroundColor: '#e3f2fd' }}>
+                <Typography variant="h4" sx={{ color: '#1976d2', fontWeight: 'bold' }}>
+                  {claims.length}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#666' }}>
+                  Total Claims
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Paper elevation={1} sx={{ p: 2, textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                <Typography variant="h4" sx={{ color: '#4caf50', fontWeight: 'bold' }}>
+                  {Object.keys(claimTypeData).length}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#666' }}>
+                  Claim Types
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Paper elevation={1} sx={{ p: 2, textAlign: 'center', backgroundColor: '#fff3e0' }}>
+                <Typography variant="h4" sx={{ color: '#ff9800', fontWeight: 'bold' }}>
+                  {claims.filter(claim => claim.status === 'Pending').length}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#666' }}>
+                  Pending Claims
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Paper elevation={1} sx={{ p: 2, textAlign: 'center', backgroundColor: '#fce4ec' }}>
+                <Typography variant="h4" sx={{ color: '#e91e63', fontWeight: 'bold' }}>
+                  {claims.filter(claim => claim.status === 'Approved').length}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#666' }}>
+                  Approved Claims
+                </Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Paper>
+      )}
+
       <TextField label="Search by Name or ID" value={search} onChange={handleSearch} fullWidth sx={{ mb: 2 }} />
       <TableContainer component={Paper}>
         <Table>

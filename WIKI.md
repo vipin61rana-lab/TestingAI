@@ -66,11 +66,17 @@ TestingAI/
 ## ✨ Features & Functionality
 
 ### 🏠 Dashboard (Claim Summary)
+- **Claims Analytics Dashboard**: Interactive charts showing claim distribution by type
+  - **Doughnut Chart**: Visual representation of claim type proportions
+  - **Bar Chart**: Count-based visualization of claims by type
+  - **Summary Statistics**: Real-time cards showing total claims, claim types, pending/approved counts
+  - **Professional Styling**: Color-coded charts with hover effects and tooltips
 - **Comprehensive Claim View**: Display all claims in a professional table format
 - **Enhanced Navigation**: Material-UI Paper-based menu bar with elevation
 - **Table Sorting**: Click any column header to sort (ascending/descending)
-- **Pagination**: 10 claims per page with Material-UI pagination controls
+- **Pagination**: 5 claims per page with Material-UI pagination controls
 - **Action Icons**: Professional edit/delete icons with tooltips
+- **Search Functionality**: Real-time search by client name or claim ID
 - **Responsive Design**: Adapts to different screen sizes
 
 ### 📝 Claim Management
@@ -107,6 +113,7 @@ TestingAI/
 ### Frontend Technologies
 - **React 18.x**: Modern functional components with hooks
 - **Material-UI (MUI) 5.x**: Professional component library
+- **Chart.js + React-Chart.js-2**: Interactive data visualization
 - **React Router**: Client-side routing and navigation
 - **Fetch API**: HTTP client for API communication
 - **CSS-in-JS**: Material-UI's sx prop styling system
@@ -287,10 +294,16 @@ All endpoints return appropriate HTTP status codes:
 #### 1. Claim Summary (`/`)
 - **File**: `client/src/pages/ClaimSummary.js`
 - **Features**:
+  - **Analytics Dashboard**: Interactive charts with Chart.js integration
+    - Doughnut chart showing claim type distribution
+    - Bar chart displaying claim counts by type
+    - Summary statistics cards with real-time data
+    - Color-coded visualizations with professional styling
   - Enhanced Paper navigation bar with elevation
   - Sortable table columns with TableSortLabel
-  - Pagination with 10 items per page
+  - Pagination with 5 items per page
   - Professional action icons (Edit/Delete)
+  - Real-time search functionality
   - Responsive design with grid layout
 
 #### 2. New Claim (`/new-claim`)
@@ -337,6 +350,19 @@ All endpoints return appropriate HTTP status codes:
 - **Typography**: Text styling and hierarchy
 - **Grid**: Responsive layout system
 - **Box**: Layout and spacing utility
+- **Chip**: Status and user information display
+- **TableSortLabel**: Interactive column sorting
+
+### Chart.js Components Used
+- **Doughnut**: Circular proportion charts
+- **Bar**: Vertical bar charts
+- **ChartJS**: Core charting engine with plugins
+- **CategoryScale**: X-axis scaling
+- **LinearScale**: Y-axis scaling
+- **ArcElement**: Doughnut chart segments
+- **BarElement**: Bar chart elements
+- **Tooltip**: Interactive hover information
+- **Legend**: Chart legend with custom styling
 
 ---
 
@@ -415,10 +441,16 @@ The application automatically creates seed data on startup:
 - Main application structure
 
 #### `client/src/pages/ClaimSummary.js`
-- Main dashboard component
+- Main dashboard component with analytics
+- **Analytics Dashboard**: 
+  - Chart.js integration with doughnut and bar charts
+  - Real-time data visualization of claim types
+  - Summary statistics with color-coded cards
+  - Interactive tooltips and hover effects
 - Table with sorting and pagination
-- Enhanced navigation bar
-- API integration for claims
+- Enhanced navigation bar with professional styling
+- Search functionality with real-time filtering
+- API integration for claims data
 
 #### `client/src/pages/AddUser.js`
 - User management interface
@@ -431,6 +463,9 @@ The application automatically creates seed data on startup:
 ```bash
 # Install dependencies
 npm install
+
+# Install chart dependencies (for analytics)
+npm install chart.js react-chartjs-2
 
 # Start development server
 npm start
@@ -454,15 +489,25 @@ npm outdated
    });
    ```
 
-2. **Frontend Component**:
+3. **Frontend Component**:
    ```javascript
    import React, { useState } from 'react';
    import { Paper, Typography } from '@mui/material';
+   import { Doughnut } from 'react-chartjs-2';
    
    function NewComponent() {
+     const chartData = {
+       labels: ['Type A', 'Type B'],
+       datasets: [{
+         data: [10, 20],
+         backgroundColor: ['#FF6384', '#36A2EB']
+       }]
+     };
+     
      return (
        <Paper elevation={3}>
-         <Typography variant="h5">New Feature</Typography>
+         <Typography variant="h5">Analytics Dashboard</Typography>
+         <Doughnut data={chartData} />
        </Paper>
      );
    }
@@ -470,8 +515,70 @@ npm outdated
 
 3. **Add Route**:
    ```javascript
-   <Route path="/new-feature" element={<NewComponent />} />
+   <Route path="/analytics" element={<AnalyticsComponent />} />
    ```
+
+### Chart.js Integration Guide
+
+#### Installing Chart Dependencies
+```bash
+npm install chart.js react-chartjs-2
+```
+
+#### Basic Chart Setup
+```javascript
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Doughnut, Bar } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
+```
+
+#### Chart Configuration Example
+```javascript
+const chartData = {
+  labels: ['Auto', 'Health', 'Home', 'Life'],
+  datasets: [{
+    label: 'Claims by Type',
+    data: [12, 19, 3, 5],
+    backgroundColor: [
+      '#FF6384',
+      '#36A2EB',
+      '#FFCE56',
+      '#4BC0C0'
+    ],
+    borderWidth: 2
+  }]
+};
+
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: 'bottom'
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0,0,0,0.8)'
+    }
+  }
+};
+```
 
 ---
 
@@ -501,6 +608,52 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
+#### Chart Performance Issues
+**Problem**: Charts not rendering or slow performance
+
+**Solution**:
+```javascript
+// Ensure proper Chart.js registration
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+// Use proper responsive settings
+const options = {
+  responsive: true,
+  maintainAspectRatio: false
+};
+```
+
+#### Chart Data Not Updating
+**Problem**: Charts don't reflect new data
+
+**Solution**:
+```javascript
+// Ensure data dependencies are properly set
+useEffect(() => {
+  // Recalculate chart data when claims change
+  setChartData(processClaimsData(claims));
+}, [claims]);
+```
+
 #### Database File Issues
 **Problem**: Database not updating or missing seed data
 
@@ -525,13 +678,20 @@ app.use(cors());
    - Use React.memo for expensive components
    - Implement proper key props in lists
    - Avoid inline functions in render methods
+   - Optimize chart re-renders with useMemo
 
-2. **API Optimization**:
+2. **Chart Optimization**:
+   - Set `maintainAspectRatio: false` for responsive charts
+   - Use `responsive: true` for automatic resizing
+   - Limit data points for large datasets
+   - Implement chart data memoization
+
+3. **API Optimization**:
    - Implement pagination for large datasets
    - Add request caching where appropriate
    - Use proper HTTP status codes
 
-3. **Database Optimization**:
+4. **Database Optimization**:
    - Consider indexing for large datasets
    - Implement data validation
    - Regular backup strategies
@@ -577,21 +737,28 @@ app.use(cors());
 ## 📝 Changelog
 
 ### Recent Updates
-- ✅ Enhanced UI with professional Material-UI components
-- ✅ Added comprehensive form validation
-- ✅ Implemented table sorting and pagination
-- ✅ Created separated user management interface
-- ✅ Added edit/delete functionality for users and claims
-- ✅ Consistent header design across all pages
-- ✅ Responsive design improvements
+- ✅ **Claims Analytics Dashboard**: Interactive Chart.js integration with doughnut and bar charts
+- ✅ **Data Visualization**: Real-time claim distribution by type with summary statistics
+- ✅ **Enhanced UI**: Professional Material-UI components with elevation and styling
+- ✅ **Comprehensive Form Validation**: Real-time validation with error messages
+- ✅ **Table Sorting & Pagination**: Interactive column sorting with page navigation
+- ✅ **User Management CRUD**: Complete edit/delete functionality for users and claims
+- ✅ **Separated User Interface**: Distinct sections for adding users and managing existing ones
+- ✅ **Consistent Header Design**: Unified navigation across all pages
+- ✅ **Responsive Design**: Mobile-friendly interface improvements
+- ✅ **Search Functionality**: Real-time filtering and search capabilities
 
 ### Future Enhancements
 - [ ] Authentication and session management
-- [ ] Advanced search and filtering
-- [ ] Data export functionality
-- [ ] Email notifications
-- [ ] Audit logging
-- [ ] Advanced reporting features
+- [ ] Advanced search and filtering with chart filters
+- [ ] Data export functionality (PDF, Excel)
+- [ ] Email notifications for claim status changes
+- [ ] Audit logging for user actions
+- [ ] Advanced reporting with more chart types
+- [ ] Real-time updates with WebSocket integration
+- [ ] Custom dashboard layouts
+- [ ] Advanced analytics with trend analysis
+- [ ] Mobile app development
 
 ---
 

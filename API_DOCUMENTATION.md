@@ -476,11 +476,13 @@ curl http://localhost:4000/api/users
 
 ### 3. Test UI Integration
 1. Open http://localhost:3000
-2. Navigate through all pages
-3. Create a new claim
-4. Edit existing claims
-5. Manage users
-6. Verify data persistence
+2. **View Analytics Dashboard** - See interactive charts on the main page
+3. Navigate through all pages
+4. Create a new claim
+5. Edit existing claims
+6. Manage users
+7. **Test Chart Interactions** - Hover over chart elements for tooltips
+8. Verify data persistence
 
 ---
 

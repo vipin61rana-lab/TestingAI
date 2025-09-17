@@ -55,9 +55,14 @@ npm start
 ## ✨ Key Features
 
 ### 🏠 Dashboard Features
+- **Claims Analytics Dashboard**: Interactive Chart.js visualizations
+  - **Doughnut Chart**: Claim distribution by type
+  - **Bar Chart**: Claim count visualization
+  - **Summary Cards**: Real-time statistics (total, pending, approved)
 - **Enhanced Navigation**: Professional Material-UI menu bar
 - **Table Sorting**: Click any column to sort data
-- **Pagination**: 10 claims per page with navigation controls
+- **Pagination**: 5 claims per page with navigation controls
+- **Search Functionality**: Real-time filtering by name or ID
 - **Responsive Design**: Mobile-friendly interface
 
 ### 📝 Claim Management
@@ -76,7 +81,8 @@ npm start
 
 ### Frontend
 - **React 18.x** - Modern functional components
-- **Material-UI 5.x** - Professional component library  
+- **Material-UI 5.x** - Professional component library
+- **Chart.js + React-Chart.js-2** - Interactive data visualization
 - **React Router** - Client-side routing
 - **Fetch API** - HTTP client
 
@@ -198,10 +204,12 @@ TestingAI/
 ## 🎨 UI Screenshots/Features
 
 ### Professional Dashboard
+- **Claims Analytics**: Interactive charts showing data distribution
 - Enhanced Paper navigation with elevation
 - Sortable table columns with visual indicators
 - Pagination controls with Material-UI styling
 - Professional action icons with hover effects
+- Real-time search and filtering capabilities
 
 ### Form Validation
 - Real-time email/phone format validation
@@ -251,6 +259,8 @@ export PORT=4000
 
 ## 🏆 Recent Enhancements
 
+✅ **Claims Analytics Dashboard**: Interactive Chart.js charts with real-time data  
+✅ **Data Visualization**: Doughnut and bar charts showing claim distributions  
 ✅ **Enhanced UI Components**: Professional Material-UI integration  
 ✅ **Form Validation**: Comprehensive real-time validation  
 ✅ **Table Sorting**: Interactive column sorting functionality  
@@ -258,6 +268,7 @@ export PORT=4000
 ✅ **Responsive Design**: Mobile-friendly interface improvements  
 ✅ **Pagination**: Efficient data display with page controls  
 ✅ **Professional Styling**: Consistent design across all pages  
+✅ **Search Functionality**: Real-time filtering and search capabilities  
 
 ---
 
